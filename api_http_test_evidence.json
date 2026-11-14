@@ -1,0 +1,37 @@
+{
+    "test_date": "2026-11-01T20:34:25",
+    "api_endpoint": "POST /predict",
+    "tests": [
+        {
+            "test": "Valid customer request",
+            "http_status": 200,
+            "response": {
+                "churn_probability": 0.4382,
+                "predicted_churn": 0,
+                "prediction_threshold": 0.6,
+                "risk_level": "Low"
+            }
+        },
+        {
+            "test": "Invalid numerical input",
+            "http_status": 400,
+            "response": {
+                "error": "Some numerical values are invalid.",
+                "invalid_features": [
+                    "historical_frequency"
+                ]
+            }
+        },
+        {
+            "test": "Missing required features",
+            "http_status": 400,
+            "response": {
+                "error": "Some required customer features are missing.",
+                "missing_features": [
+                    "historical_frequency",
+                    "membership_tier"
+                ]
+            }
+        }
+    ]
+}

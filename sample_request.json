@@ -1,0 +1,18 @@
+{
+    "historical_frequency": 4,
+    "historical_monetary": 850,
+    "historical_avg_order_value": 212.5,
+    "historical_recency": 120,
+    "historical_quantity": 12,
+    "customer_tenure_days": 500,
+    "historical_ticket_count": 2,
+    "historical_avg_resolution_hours": 24,
+    "historical_avg_satisfaction": 4,
+    "historical_unique_issue_categories": 2,
+    "historical_missing_satisfaction_count": 0,
+    "membership_tier": "Gold",
+    "preferred_channel": "Online",
+    "state": "California",
+    "marketing_opt_in": "Yes",
+    "referral_source": "Social Media"
+}

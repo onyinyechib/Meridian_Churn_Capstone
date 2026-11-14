@@ -1,0 +1,176 @@
+{
+  "project": "Meridian Retail Group Customer Churn Prediction",
+  "artifact": {
+    "filename": "final_model.pkl",
+    "relative_path": "models/final_model.pkl",
+    "file_size_bytes": 262013,
+    "sha256": "74e0bcf0b51de129c8644ec9aab210cbf8bd63880178d4aa3c437ad9dfce1537",
+    "original_filename_in_submitted_zip": "meridian_gradient_boosting_model.joblib",
+    "artifact_handling": "The file is a byte-for-byte copy of the saved joblib artifact. Load it with joblib.load(), even though the official filename uses the .pkl extension. It was not retrained or re-serialized."
+  },
+  "model": {
+    "type": "scikit-learn Pipeline",
+    "algorithm": "Tuned Gradient Boosting Classifier",
+    "pipeline_steps": [
+      "preprocessor",
+      "classifier"
+    ],
+    "classifier_parameters": {
+      "n_estimators": 100,
+      "learning_rate": 0.03,
+      "max_depth": 4,
+      "min_samples_split": 2,
+      "min_samples_leaf": 1,
+      "random_state": 42
+    },
+    "model_selection": {
+      "method": "GridSearchCV",
+      "scoring": "roc_auc",
+      "cross_validation_folds": 5,
+      "parameter_combinations_tested": 108,
+      "best_mean_cross_validation_roc_auc": 0.7909
+    }
+  },
+  "preprocessing": {
+    "numerical": {
+      "imputation": "SimpleImputer(strategy='median')",
+      "scaling": "StandardScaler",
+      "features": [
+        "historical_frequency",
+        "historical_monetary",
+        "historical_avg_order_value",
+        "historical_recency",
+        "historical_quantity",
+        "customer_tenure_days",
+        "historical_ticket_count",
+        "historical_avg_resolution_hours",
+        "historical_avg_satisfaction",
+        "historical_unique_issue_categories",
+        "historical_missing_satisfaction_count"
+      ]
+    },
+    "categorical": {
+      "imputation": "SimpleImputer(strategy='most_frequent')",
+      "encoding": "OneHotEncoder(handle_unknown='ignore')",
+      "features": [
+        "membership_tier",
+        "preferred_channel",
+        "state",
+        "marketing_opt_in",
+        "referral_source"
+      ]
+    }
+  },
+  "prediction_contract": {
+    "input_feature_count": 16,
+    "input_features_in_api_order": [
+      "historical_frequency",
+      "historical_monetary",
+      "historical_avg_order_value",
+      "historical_recency",
+      "historical_quantity",
+      "customer_tenure_days",
+      "historical_ticket_count",
+      "historical_avg_resolution_hours",
+      "historical_avg_satisfaction",
+      "historical_unique_issue_categories",
+      "historical_missing_satisfaction_count",
+      "membership_tier",
+      "preferred_channel",
+      "state",
+      "marketing_opt_in",
+      "referral_source"
+    ],
+    "target_name": "churned",
+    "class_mapping": {
+      "0": "Active: at least one completed order during the outcome period",
+      "1": "Churned: no completed order during the outcome period"
+    },
+    "api_probability_threshold": 0.6,
+    "api_prediction_rule": "Predicted churn = 1 when predicted probability for class 1 is greater than or equal to 0.60; otherwise 0."
+  },
+  "modelling_data_and_validation": {
+    "prediction_cutoff": "2026-01-02",
+    "historical_feature_rule": "Historical features use completed orders dated before 2026-01-02.",
+    "outcome_period_start": "2026-01-02",
+    "outcome_period_end_inclusive": "2026-06-30",
+    "eligible_customer_records": 5564,
+    "training_records": 4451,
+    "test_records": 1113,
+    "test_split_fraction": 0.2,
+    "split_method": "train_test_split with stratify=y",
+    "random_state": 42,
+    "test_class_counts": {
+      "active_class_0": 314,
+      "churned_class_1": 799
+    }
+  },
+  "evaluation": {
+    "default_probability_threshold": 0.5,
+    "test_metrics_at_threshold_0_50": {
+      "accuracy": 0.7736,
+      "churn_precision": 0.7957,
+      "churn_recall": 0.9212,
+      "churn_f1": 0.8538,
+      "roc_auc": 0.7942,
+      "confusion_matrix_labels_order": [
+        "Active (0)",
+        "Churned (1)"
+      ],
+      "confusion_matrix": [
+        [
+          125,
+          189
+        ],
+        [
+          63,
+          736
+        ]
+      ]
+    },
+    "api_threshold": 0.6,
+    "test_metrics_at_api_threshold_0_60": {
+      "accuracy": 0.7808,
+      "active_recall": 0.5382,
+      "churn_precision": 0.8284,
+      "churn_recall": 0.8761,
+      "churn_f1": 0.8516,
+      "macro_recall": 0.7072,
+      "confusion_matrix_labels_order": [
+        "Active (0)",
+        "Churned (1)"
+      ],
+      "confusion_matrix": [
+        [
+          169,
+          145
+        ],
+        [
+          99,
+          700
+        ]
+      ]
+    },
+    "evaluation_caveat": "The project notebook also examined the test set while comparing classification thresholds. Therefore, threshold-specific test metrics are exploratory and are not a completely untouched final evaluation. Evaluate on a new future holdout period before production use."
+  },
+  "runtime_compatibility": {
+    "scikit_learn_version_embedded_in_saved_estimators": "1.6.1",
+    "recommended_requirement": "scikit-learn==1.6.1",
+    "loading_library": "joblib",
+    "loading_example": "import joblib\nmodel = joblib.load('models/final_model.pkl')",
+    "compatibility_note": "scikit-learn model persistence is version-sensitive. Use the recorded scikit-learn version when loading this artifact. The workspace used for preparing these files had scikit-learn 1.8.0 and could not deserialize this 1.6.1 artifact because a private ColumnTransformer class changed. The Phase 9 notebook records that the original saved model was reloaded successfully in its training environment and produced predictions identical to the fitted model."
+  },
+  "important_limitations": [
+    "The churn target is tied to the stated historical cutoff and six-month outcome period; it is not proof of permanent customer abandonment.",
+    "The 0.60 threshold is provisional and should be chosen according to the business costs of false positives and false negatives.",
+    "The test set was involved in threshold comparison, so a new time-based holdout evaluation is needed.",
+    "Feature importance is predictive, not causal.",
+    "The saved model expects the 16 named predictor columns and their training-time meanings."
+  ],
+  "metadata_source": [
+    "Phase_9_Modelling_and_API_Development.ipynb in the submitted project archive",
+    "API/app.py in the submitted project archive",
+    "The original serialized model file in Models/meridian_gradient_boosting_model.joblib"
+  ],
+  "metadata_prepared_date": "2026-11-14"
+}
